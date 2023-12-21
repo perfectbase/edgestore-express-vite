@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/edgestore/:path*",
+      "destination": "https://edgestore-express.vercel.app/edgestore/:path*"
+    }
+  ]
+}
