@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { EdgeStoreProvider, useEdgeStore } from './lib/edgestore';
+import { useState } from "react";
+import { EdgeStoreProvider, useEdgeStore } from "./lib/edgestore";
 
 function App() {
   return (
-    <EdgeStoreProvider basePath="http://localhost:3001/edgestore">
+    <EdgeStoreProvider basePath={import.meta.env.VITE_EDGESTORE_API_ENDPOINT}>
       <div>
         <UploadInput />
       </div>
