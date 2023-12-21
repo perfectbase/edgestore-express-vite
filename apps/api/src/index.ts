@@ -56,8 +56,11 @@ app.get("/", (req, res) => {
 app.get("/edgestore/*", handler);
 app.post("/edgestore/*", handler);
 
+// need this export to run in Vercel
 export default app;
 
-app.listen(PORT, () => {
-  console.log(`⚡Server is running here 👉 http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV === "development") {
+  app.listen(PORT, () => {
+    console.log(`⚡Server is running here 👉 http://localhost:${PORT}`);
+  });
+}
