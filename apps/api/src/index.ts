@@ -53,15 +53,17 @@ const handler = createEdgeStoreExpressHandler({
 
 // --- EXPRESS ROUTES ---
 
-app.get("/", (req, res) => {
+const router = express.Router();
+
+router.get("/", (req, res) => {
   console.log(req), res.send("Hello from server!");
 });
 
 // set the get and post routes for the edgestore router
-app.get("/edgestore/*", handler);
-app.post("/edgestore/*", handler);
+router.get("/edgestore/*", handler);
+router.post("/edgestore/*", handler);
 
-app.post("/server-upload", async (req, res) => {
+router.post("/server-upload", async (req, res) => {
   console.log(req.body);
   const text = req.body.text;
   await backendClient.publicFiles.upload({
@@ -70,18 +72,20 @@ app.post("/server-upload", async (req, res) => {
   res.send("ok");
 });
 
-app.get("/list-files", async (_req, res) => {
+router.get("/list-files", async (_req, res) => {
   const files = await backendClient.publicFiles.listFiles();
   res.json(files.data.map((file) => file.url));
 });
 
-app.post("/delete-file", async (req, res) => {
+router.post("/delete-file", async (req, res) => {
   const url = req.body.url;
   await backendClient.publicFiles.deleteFile({
     url,
   });
   res.send("ok");
 });
+
+app.use("/api", router);
 
 // need this export to run in Vercel
 export default app;
