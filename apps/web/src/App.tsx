@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EdgeStoreProvider, useEdgeStore } from "./lib/edgestore";
 
 function App() {
   return (
-    <EdgeStoreProvider basePath={import.meta.env.VITE_EDGESTORE_API_ENDPOINT}>
+    <EdgeStoreProvider
+      basePath={`${import.meta.env.VITE_API_ENDPOINT}/edgestore`}
+    >
       <div>
         <UploadInput />
+        <ServerUploadInput />
+        <FileList />
       </div>
     </EdgeStoreProvider>
   );
@@ -43,6 +47,76 @@ function UploadInput() {
       >
         Upload
       </button>
+    </div>
+  );
+}
+
+function ServerUploadInput() {
+  return (
+    <div>
+      <button
+        onClick={async () => {
+          await fetch(`${import.meta.env.VITE_API_ENDPOINT}/server-upload`, {
+            method: "POST",
+            body: JSON.stringify({
+              text: "hello world",
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }}
+      >
+        Server Upload
+      </button>
+    </div>
+  );
+}
+
+function FileList() {
+  const [files, setFiles] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_ENDPOINT}/list-files`
+      );
+      const json = await res.json();
+      setFiles(json);
+    })();
+  }, []);
+
+  return (
+    <div>
+      <h2>Files</h2>
+      <ul>
+        {files.map((url) => (
+          <li key={url}>
+            <div style={{ display: "flex", gap: "4px" }}>
+              <a href={url}>{url.split("/").pop()}</a>
+              <button
+                onClick={async () => {
+                  await fetch(
+                    `${import.meta.env.VITE_API_ENDPOINT}/delete-file`,
+                    {
+                      method: "POST",
+                      body: JSON.stringify({
+                        url,
+                      }),
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    }
+                  );
+                  setFiles(files.filter((f) => f !== url));
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

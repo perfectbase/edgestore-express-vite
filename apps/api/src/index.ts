@@ -1,4 +1,5 @@
 import { initEdgeStore } from "@edgestore/server";
+import { initEdgeStoreClient } from "@edgestore/server/core";
 import { createEdgeStoreExpressHandler } from "@edgestore/server/adapters/express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -42,6 +43,10 @@ const edgeStoreRouter = es.router({
 
 export type EdgeStoreRouter = typeof edgeStoreRouter;
 
+const backendClient = initEdgeStoreClient({
+  router: edgeStoreRouter,
+});
+
 const handler = createEdgeStoreExpressHandler({
   router: edgeStoreRouter,
 });
@@ -55,6 +60,28 @@ app.get("/", (req, res) => {
 // set the get and post routes for the edgestore router
 app.get("/edgestore/*", handler);
 app.post("/edgestore/*", handler);
+
+app.post("/server-upload", async (req, res) => {
+  console.log(req.body);
+  const text = req.body.text;
+  await backendClient.publicFiles.upload({
+    content: text,
+  });
+  res.send("ok");
+});
+
+app.get("/list-files", async (req, res) => {
+  const files = await backendClient.publicFiles.listFiles();
+  res.json(files.data.map((file) => file.url));
+});
+
+app.post("/delete-file", async (req, res) => {
+  const url = req.body.url;
+  await backendClient.publicFiles.deleteFile({
+    url,
+  });
+  res.send("ok");
+});
 
 // need this export to run in Vercel
 export default app;
