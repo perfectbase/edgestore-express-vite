@@ -70,7 +70,7 @@ app.post("/server-upload", async (req, res) => {
   res.send("ok");
 });
 
-app.get("/list-files", async (req, res) => {
+app.get("/list-files", async (_req, res) => {
   const files = await backendClient.publicFiles.listFiles();
   res.json(files.data.map((file) => file.url));
 });
