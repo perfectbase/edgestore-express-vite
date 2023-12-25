@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { EdgeStoreProvider, useEdgeStore } from "./lib/edgestore";
+import { EdgeStoreApiClientError } from "@edgestore/react/shared";
 
 function App() {
   return (
@@ -32,16 +33,29 @@ function UploadInput() {
       <button
         onClick={async () => {
           if (file) {
-            const res = await edgestore.publicFiles.upload({
-              file,
-              onProgressChange: (progress) => {
-                // you can use this to show a progress bar
-                console.log(progress);
-              },
-            });
-            // you can run some server action or api here
-            // to add the necessary data to your database
-            console.log(res);
+            try {
+              const res = await edgestore.publicFiles.upload({
+                file,
+                onProgressChange: (progress) => {
+                  // you can use this to show a progress bar
+                  console.log(progress);
+                },
+              });
+              // you can run some server action or api here
+              // to add the necessary data to your database
+              console.log(res);
+            } catch (error) {
+              console.log(error);
+              if (error instanceof EdgeStoreApiClientError) {
+                if (error.data.code === "MIME_TYPE_NOT_ALLOWED") {
+                  alert(
+                    `File type not allowed. Allowed types are ${error.data.details.allowedMimeTypes.join(
+                      ", "
+                    )}`
+                  );
+                }
+              }
+            }
           }
         }}
       >

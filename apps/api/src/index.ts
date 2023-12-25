@@ -38,7 +38,9 @@ app.use(bodyParser.json());
 const es = initEdgeStore.create();
 
 const edgeStoreRouter = es.router({
-  publicFiles: es.fileBucket(),
+  publicFiles: es.fileBucket({
+    accept: ["image/*"],
+  }),
 });
 
 export type EdgeStoreRouter = typeof edgeStoreRouter;
@@ -48,6 +50,7 @@ const backendClient = initEdgeStoreClient({
 });
 
 const handler = createEdgeStoreExpressHandler({
+  logLevel: "debug",
   router: edgeStoreRouter,
 });
 
